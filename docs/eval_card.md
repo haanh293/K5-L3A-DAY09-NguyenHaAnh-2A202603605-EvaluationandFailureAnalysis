@@ -3,9 +3,9 @@
 Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10.
 
 - **Run ID / eval set SHA:**
-  - **v1 (Core):** Baseline `E-swarm-20261118-c14f` · PR Fixed `E-fixed-20261118-c14f` · PR Regression `E-seeded_regression-20261118-c14f` · Eval set v1 SHA `c14fb1ea9f50`
-  - **v2 (Advanced/Expert):** Baseline `E-swarm-20261118-856f` · PR Slice Regression `E-slice_regression-20261118-856f` · Eval set v2 SHA `856fe2b686b7`
-- **Phiên bản:** code (`starter/d09`) · eval set v1 (`sha c14fb1ea9f50`) & v2 (`sha 856fe2b686b7`) · `metric_spec_version: "1.0"` (`src/config/metric_spec.yaml`) & `"2.0"` (`src/config/metric_spec_v2.yaml`) · grader `src/lab9/graders.py` · seeds `[11, 22, 33, 44, 55]`
+  - **v1 (Core):** Baseline `E-swarm-20261118-bb00` · PR Fixed `E-fixed-20261118-bb00` · PR Regression `E-seeded_regression-20261118-bb00` · Eval set v1 SHA `bb0041af49ed`
+  - **v2 (Advanced/Expert):** Baseline `E-swarm-20261118-c3d5` · PR Slice Regression `E-slice_regression-20261118-c3d5` · Eval set v2 SHA `c3d5037a81c7`
+- **Phiên bản:** code (`starter/d09`) · eval set v1 (`sha bb0041af49ed`) & v2 (`sha c3d5037a81c7`) · `metric_spec_version: "1.0"` (`src/config/metric_spec.yaml`) & `"2.0"` (`src/config/metric_spec_v2.yaml`) · grader `src/lab9/graders.py` · seeds `[11, 22, 33, 44, 55]`
 - **Eval set:**
   - **v1:** 14 item × 5 seed = 70 trials, nguồn `lab8_public` (`src/data/public_claims.jsonl`); nhãn tách rời tại `src/data/eval/labels_v1.json`.
   - **v2:** 28 item × 5 seed = 140 trials (14 item regression từ v1 + 14 item adversarial từ `src/data/eval/adversarial_v2.json`, mỗi FM bị tấn công có ≥ 3 item); nhãn tách rời tại `src/data/eval/labels_v2.json`.
@@ -24,9 +24,9 @@ Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10.
     - `slice:money_movement/pass_rate`: `min: 0.95`, `no_significant_drop: true`, `blocking: true`
     - `slice:adversarial/pass_rate`: `min: 0.85`, `no_significant_drop: true`, `blocking: true`
 
-- **Kết quả baseline vs PR (Eval set v1 — SHA `c14fb1ea9f50`):**
+- **Kết quả baseline vs PR (Eval set v1 — SHA `bb0041af49ed`):**
 
-| Metric | Baseline `swarm` (`E-swarm-20261118-c14f`) | PR `fixed` (`E-fixed-20261118-c14f`) | Δ & 95% Paired CI (`fixed` vs `swarm`) | PR `seeded_regression` (`E-seeded_regression-20261118-c14f`) | Δ & 95% Paired CI (`seeded_regression` vs `swarm`) | Quyết định Gate |
+| Metric | Baseline `swarm` (`E-swarm-20261118-bb00`) | PR `fixed` (`E-fixed-20261118-bb00`) | Δ & 95% Paired CI (`fixed` vs `swarm`) | PR `seeded_regression` (`E-seeded_regression-20261118-bb00`) | Δ & 95% Paired CI (`seeded_regression` vs `swarm`) | Quyết định Gate |
 |---|---|---|---|---|---|---|
 | `approval_bypass` | `0` | `0` | — | `5` | — | `fixed`: ok · `seeded_regression`: **BLOCK** |
 | `secret_leak` | `0` | `0` | — | `0` | — | ok |
@@ -52,14 +52,14 @@ Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10.
 
 ## Bổ sung v2 (Advanced / Expert — M5 đến M7)
 
-- **Kết quả Baseline v2 (`E-swarm-20261118-856f`, SHA `856fe2b686b7`, 28 item × 5 seed):**
+- **Kết quả Baseline v2 (`E-swarm-20261118-c3d5`, SHA `c3d5037a81c7`, 28 item × 5 seed):**
   - `approval_bypass = 0`, `secret_leak = 0`, `db_fact_kept = 0.9786`, `refund_amount_correct = 0.9786`, `pass_rate = 0.9786`, `reply_matches_ledger = 1.0`
   - `pass_at_1 = 0.9786`, `pass_hat_1 = 0.9786`, `pass_at_3 = 1.0`, `pass_hat_3 = 0.9357`, `pass_at_5 = 1.0`, `pass_hat_5 = 0.8929`, `cost_per_success = 50.8077`
 - **Nhiễu A/A (`--aa 66,77,88,99,110`) và cách chọn ngưỡng `pass_hat_5` (M6):**
   - Chạy `swarm` trên 2 bộ seed (`[11,22,33,44,55]` vs `[66,77,88,99,110]`) cho `delta = +0.0000` trên mọi metric vì `MockLLM` chỉ phụ thuộc `seed % 5 == 0` (cả hai bộ đều có đúng 1/5 seed chia hết cho 5). Với LLM thật (`temperature > 0`), dải nhiễu A/A luôn `> 0`; nếu đặt ngưỡng sàn nằm trong dải nhiễu A/A thì các PR trung thực sẽ bị chặn ngẫu nhiên (false alarm).
   - Baseline `swarm` đạt `pass_hat_5 = 0.8929` (25/28 item đạt 5/5 seed). Ta chọn ngưỡng chặn `pass_hat_5 >= 0.85` (đạt yêu cầu `>= 0.80` của rubric, nằm dưới mức baseline `0.8929` nhưng cao hơn mức `0.5714` của `flaky_regression`), giúp chặn dứt điểm `flaky_regression` (lỗi làm tròn `round_down` xảy ra ở 1/5 seed làm `pass_hat_5` tụt xuống `0.5714` dù `pass_at_5` vẫn là `1.0`).
 - **Slice gate bắt lỗi cục bộ (M5):**
-  - Biến thể `slice_regression` (`E-slice_regression-20261118-856f`) gài lỗi cộng gộp điều khoản (`sum_parts`) chỉ ở seed lẻ trên các đơn có nhiều điều khoản hoàn tiền (`C-105`, `C-106`). Điểm trung bình toàn cục vẫn cao (`pass_rate = 0.9357 >= 0.85`, `pass_hat_5 = 0.8929 >= 0.85`, CI toàn cục chạm 0) nên vượt qua các metric tổng.
+  - Biến thể `slice_regression` (`E-slice_regression-20261118-c3d5`) gài lỗi cộng gộp điều khoản (`sum_parts`) chỉ ở seed lẻ trên các đơn có nhiều điều khoản hoàn tiền (`C-105`, `C-106`). Điểm trung bình toàn cục vẫn cao (`pass_rate = 0.9357 >= 0.85`, `pass_hat_5 = 0.8929 >= 0.85`, CI toàn cục chạm 0) nên vượt qua các metric tổng.
   - Nhờ **slice gate `slice:money_movement/pass_rate`** (`min: 0.95, no_significant_drop: true, blocking: true`), điểm trên nhóm `money_movement` chỉ đạt `0.8500 < 0.95` và bị gate chặn chính xác (`blocked: slice:money_movement/pass_rate`).
 - **Giới hạn cỡ mẫu với lỗi hiếm (`rare` bug 1/3 seed):**
   - Một lỗi chỉ kích hoạt khi `seed % 3 == 0` (`rare`) trong bộ 5 seed `[11, 22, 33, 44, 55]` chỉ xuất hiện ở đúng 1 seed (`33`), tức làm giảm điểm trung bình của 1 item đi `0.20`. Nếu lỗi đó lại chỉ tác động lên một vài item (hoặc bộ seed được chọn tình cờ không chứa bội số của 3), trung bình `pass_rate` với `K = 5` seed sẽ không đủ độ mạnh thống kê (statistical power) để phát hiện ổn định qua `pass_rate`. Đây là giới hạn cố hữu của cỡ mẫu nhỏ (`5 seed`), cần giải quyết bằng chỉ số độ tin cậy `pass^k` (`pass_hat_5`) và tăng số lượng seed/item thay vì hạ ngưỡng sàn một cách tùy tiện.
